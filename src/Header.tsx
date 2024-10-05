@@ -12,9 +12,9 @@ export const Header = () => {
 
         <Navbar.Collapse>
           <Nav className="me-auto navBarContainer">
-            <Nav.Link href="#home">Documents</Nav.Link>
-            <Nav.Link href="#link">Messages</Nav.Link>
-            <Nav.Link href="#link2">Contacts</Nav.Link>
+            <Nav.Link href="/documents">Documents</Nav.Link>
+            <Nav.Link href="/messages">Messages</Nav.Link>
+            <Nav.Link href="/">Contact</Nav.Link>
           </Nav>
         </Navbar.Collapse>
 

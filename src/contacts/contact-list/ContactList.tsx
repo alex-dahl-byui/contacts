@@ -1,10 +1,15 @@
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
-import { Contact } from "../types.ts";
+import { IContact } from "../types.ts";
+import { ContactItem } from "../contact-item/ContactItem.tsx";
 
-export const ContactList = () => {
-  const contacts: Contact[] = [
+interface ContactListProps {
+  setContact: (contact: IContact) => void;
+}
+
+export const ContactList = ({ setContact }: ContactListProps) => {
+  const contacts: IContact[] = [
     {
       id: "1",
       name: "R. Kent Jackson",
@@ -33,18 +38,11 @@ export const ContactList = () => {
         </Container>
       </Card.Header>
       <Card.Body>
-        <>
-          {contacts.map((contact) => (
-            <Card key={contact.id}>
-              <Card.Body>
-                <Container className="d-flex justify-content-between align-items-center">
-                  <Card.Title as="h6">{contact.name}</Card.Title>
-                  <img src={contact.imageUrl} alt={contact.name} height={150} />
-                </Container>
-              </Card.Body>
-            </Card>
-          ))}
-        </>
+        {contacts.map((contact) => (
+          <span onClick={() => setContact(contact)}>
+            <ContactItem contact={contact} />
+          </span>
+        ))}
       </Card.Body>
     </Card>
   );

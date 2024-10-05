@@ -1,10 +1,10 @@
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
-import { Contact } from "../types.ts";
+import { IContact } from "../types.ts";
 import Button from "react-bootstrap/Button";
 
 interface ContactDetailProps {
-  contact?: Contact;
+  contact?: IContact;
 }
 
 export const ContactDetail = ({ contact }: ContactDetailProps) => {
