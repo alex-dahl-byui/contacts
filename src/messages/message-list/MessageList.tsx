@@ -2,24 +2,20 @@ import "./MessageList.css";
 import Card from "react-bootstrap/Card";
 import { MessageEdit } from "../message-edit/MessageEdit.tsx";
 import Container from "react-bootstrap/Container";
-import { useState } from "react";
-import { Message } from "../types.ts";
 import { MessageItem } from "../message-item/MessageItem.tsx";
+import { useGetMessages } from "../hooks/messages.ts";
 
 export const MessageList = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { getMessages, addMessage } = useGetMessages();
   const currentSender = "Alex Dahl";
 
   const handleNewMessage = (subject: string, message: string) => {
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      {
-        subject,
-        msgText: message,
-        id: crypto.randomUUID(),
-        sender: currentSender,
-      },
-    ]);
+    addMessage({
+      subject,
+      msgText: message,
+      id: crypto.randomUUID(),
+      sender: currentSender,
+    });
   };
 
   return (
@@ -28,7 +24,7 @@ export const MessageList = () => {
         <Card>
           <Card.Header as="h5">Messages</Card.Header>
           <Card.Body>
-            {messages.map((message) => (
+            {getMessages().map((message) => (
               <MessageItem message={message} key={message.id} />
             ))}
           </Card.Body>

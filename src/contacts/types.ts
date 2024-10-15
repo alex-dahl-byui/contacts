@@ -4,5 +4,5 @@ export interface IContact {
   email: string;
   phone: string;
   imageUrl: string;
-  group: null;
+  group: null | IContact[];
 }
