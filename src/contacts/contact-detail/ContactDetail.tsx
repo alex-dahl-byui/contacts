@@ -1,13 +1,16 @@
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
-import { IContact } from "../types.ts";
 import Button from "react-bootstrap/Button";
+import { useNavigate, useParams } from "react-router-dom";
+import { useGetContacts } from "../hooks/contact.ts";
+import Nav from "react-bootstrap/Nav";
 
-interface ContactDetailProps {
-  contact?: IContact;
-}
+export const ContactDetail = () => {
+  const { id } = useParams();
+  const { getContact, deleteContact } = useGetContacts();
+  const contact = getContact(id ?? "");
+  const navigate = useNavigate();
 
-export const ContactDetail = ({ contact }: ContactDetailProps) => {
   return (
     <Card>
       <Card.Header as="h5">
@@ -17,8 +20,18 @@ export const ContactDetail = ({ contact }: ContactDetailProps) => {
             <img src={contact?.imageUrl} alt={contact?.name} height={150} />
           </Container>
           <Container>
-            <Button variant="primary">Edit</Button>
-            <Button variant="danger">Delete</Button>
+            <Nav.Link href={`/contacts/${contact?.id}/edit`}>
+              <Button variant="primary">Edit</Button>
+            </Nav.Link>
+            <Button
+              variant="danger"
+              onClick={() => {
+                deleteContact(contact);
+                navigate("/contacts");
+              }}
+            >
+              Delete
+            </Button>
           </Container>
         </Container>
       </Card.Header>

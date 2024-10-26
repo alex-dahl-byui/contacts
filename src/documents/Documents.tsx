@@ -1,20 +1,16 @@
-import { useState } from "react";
 import Container from "react-bootstrap/Container";
 import { DocumentList } from "./document-list/DocumentList.tsx";
-import { DocumentDetail } from "./document-detail/DocumentDetail.tsx";
-import { Document } from "./types.ts";
+import { Outlet } from "react-router-dom";
 
 export const Documents = () => {
-  const [document, setDocument] = useState<Document | undefined>();
-
   return (
     <Container className="row">
       <Container className="col-md-5">
-        <DocumentList setDocument={setDocument} />
+        <DocumentList />
       </Container>
 
       <Container className="col-md-4">
-        {document ? <DocumentDetail document={document} /> : null}
+        <Outlet />
       </Container>
     </Container>
   );

@@ -1,13 +1,17 @@
 import "./DocumentDetail.css";
-import { Document } from "../types.ts";
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
+import { useNavigate, useParams } from "react-router-dom";
+import { useGetDocuments } from "../hooks/documents.ts";
+import { useMemo } from "react";
+import { Nav } from "react-bootstrap";
 
-interface DocumentDetailPros {
-  document: Document;
-}
+export const DocumentDetail = () => {
+  const { id } = useParams();
+  const { getDocument, deleteDocument } = useGetDocuments();
+  const document = useMemo(() => getDocument(id ?? ""), [id, getDocument]);
+  const navigate = useNavigate();
 
-export const DocumentDetail = ({ document }: DocumentDetailPros) => {
   return (
     <Card className="panel panel-default">
       <Card.Header className="panel-heading">
@@ -17,9 +21,26 @@ export const DocumentDetail = ({ document }: DocumentDetailPros) => {
             className="d-flex justify-content-end align-items-center"
             style={{ gap: 2 }}
           >
-            <a className="btn btn-primary">View</a>
-            <a className="btn btn-info">Edit</a>
-            <a className="btn btn-danger">Delete</a>
+            <a
+              className="btn btn-primary"
+              href={document?.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View
+            </a>
+            <Nav.Link href={`/documents/${document?.id}/edit`}>
+              <a className="btn btn-info">Edit</a>
+            </Nav.Link>
+            <a
+              className="btn btn-danger"
+              onClick={() => {
+                deleteDocument(document);
+                navigate("/documents");
+              }}
+            >
+              Delete
+            </a>
           </Container>
         </Container>
       </Card.Header>

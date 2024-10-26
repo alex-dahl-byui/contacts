@@ -1,14 +1,25 @@
 import { IContact } from "../types.ts";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { MOCKCONTACTS } from "./MOCKCONTACTS.ts";
 
 export const useGetContacts = () => {
-  const [contacts] = useState<IContact[]>(MOCKCONTACTS);
+  const [contacts, setContacts] = useState<IContact[]>(MOCKCONTACTS);
 
-  const getContacts = () => structuredClone(contacts);
+  const getContacts = useCallback(() => structuredClone(contacts), [contacts]);
 
-  const getContact = (id: string) =>
-    contacts.find((contact) => contact.id === id);
+  const getContact = useCallback(
+    (id: string) => contacts.find((contact) => contact.id === id),
+    [contacts],
+  );
 
-  return { getContact, getContacts };
+  const deleteContact = useCallback((contact?: IContact) => {
+    if (!contact) {
+      return;
+    }
+    setContacts((prevState) =>
+      prevState.filter((doc) => doc.id !== contact.id),
+    );
+  }, []);
+
+  return { getContact, getContacts, deleteContact };
 };

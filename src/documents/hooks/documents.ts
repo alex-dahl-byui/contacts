@@ -1,13 +1,28 @@
 import { Document } from "../types.ts";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { MOCKDOCUMENTS } from "./MOCKDOCUMENTS.ts";
 
 export const useGetDocuments = () => {
-  const [documents] = useState<Document[]>(MOCKDOCUMENTS);
+  const [documents, setDocuments] = useState<Document[]>(MOCKDOCUMENTS);
 
-  const getDocuments = () => structuredClone(documents);
+  const getDocuments = useCallback(
+    () => structuredClone(documents),
+    [documents],
+  );
 
-  const getDocument = (id: string) => documents.find((doc) => doc.id === id);
+  const getDocument = useCallback(
+    (id: string) => documents.find((doc) => doc.id === id),
+    [documents],
+  );
 
-  return { getDocuments, getDocument };
+  const deleteDocument = useCallback((document?: Document) => {
+    if (!document) {
+      return;
+    }
+    setDocuments((prevState) =>
+      prevState.filter((doc) => doc.id !== document.id),
+    );
+  }, []);
+
+  return { getDocuments, getDocument, deleteDocument };
 };

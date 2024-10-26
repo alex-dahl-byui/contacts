@@ -14,7 +14,7 @@ export const Header = () => {
           <Nav className="me-auto navBarContainer">
             <Nav.Link href="/documents">Documents</Nav.Link>
             <Nav.Link href="/messages">Messages</Nav.Link>
-            <Nav.Link href="/">Contact</Nav.Link>
+            <Nav.Link href="/contacts">Contact</Nav.Link>
           </Nav>
         </Navbar.Collapse>
 
