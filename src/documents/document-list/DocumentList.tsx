@@ -2,11 +2,12 @@ import "./DocumentList.css";
 import Card from "react-bootstrap/Card";
 import { DocumentItem } from "../document-item/DocumentItem.tsx";
 import Container from "react-bootstrap/Container";
-import { useGetDocuments } from "../hooks/documents.ts";
+import { DocumentsContext } from "../hooks/documents.tsx";
 import Nav from "react-bootstrap/Nav";
+import { useContext } from "react";
 
 export const DocumentList = () => {
-  const { getDocuments } = useGetDocuments();
+  const { documents } = useContext(DocumentsContext);
   return (
     <Card className="panel panel-default">
       <Card.Header className="panel-heading">
@@ -22,7 +23,7 @@ export const DocumentList = () => {
           className="d-flex justify-content-start align-items-center"
           style={{ flexWrap: "wrap" }}
         >
-          {getDocuments().map((document) => (
+          {documents.map((document) => (
             <DocumentItem document={document} key={document.id} />
           ))}
         </Container>

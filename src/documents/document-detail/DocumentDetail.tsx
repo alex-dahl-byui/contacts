@@ -2,13 +2,13 @@ import "./DocumentDetail.css";
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetDocuments } from "../hooks/documents.ts";
-import { useMemo } from "react";
+import { DocumentsContext } from "../hooks/documents.tsx";
+import { useContext, useMemo } from "react";
 import { Nav } from "react-bootstrap";
 
 export const DocumentDetail = () => {
   const { id } = useParams();
-  const { getDocument, deleteDocument } = useGetDocuments();
+  const { getDocument, deleteDocument } = useContext(DocumentsContext);
   const document = useMemo(() => getDocument(id ?? ""), [id, getDocument]);
   const navigate = useNavigate();
 

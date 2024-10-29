@@ -2,11 +2,12 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import { ContactItem } from "../contact-item/ContactItem.tsx";
-import { useGetContacts } from "../hooks/contact.ts";
+import { ContactContext } from "../hooks/contact.tsx";
 import Nav from "react-bootstrap/Nav";
+import { useContext } from "react";
 
 export const ContactList = () => {
-  const { getContacts } = useGetContacts();
+  const { contacts } = useContext(ContactContext);
 
   return (
     <Card>
@@ -21,8 +22,8 @@ export const ContactList = () => {
         </Container>
       </Card.Header>
       <Card.Body>
-        {getContacts().map((contact) => (
-          <ContactItem contact={contact} />
+        {contacts.map((contact) => (
+          <ContactItem contact={contact} key={contact.id} />
         ))}
       </Card.Body>
     </Card>

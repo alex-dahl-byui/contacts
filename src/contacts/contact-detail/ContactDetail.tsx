@@ -2,12 +2,13 @@ import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetContacts } from "../hooks/contact.ts";
+import { ContactContext } from "../hooks/contact.tsx";
 import Nav from "react-bootstrap/Nav";
+import { useContext } from "react";
 
 export const ContactDetail = () => {
   const { id } = useParams();
-  const { getContact, deleteContact } = useGetContacts();
+  const { getContact, deleteContact } = useContext(ContactContext);
   const contact = getContact(id ?? "");
   const navigate = useNavigate();
 

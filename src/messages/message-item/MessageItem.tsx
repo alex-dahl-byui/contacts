@@ -1,7 +1,7 @@
 import "./MessageItem.css";
 import { Message } from "../types.ts";
-import { useGetContacts } from "../../contacts/hooks/contact.ts";
-import { useEffect, useState } from "react";
+import { ContactContext } from "../../contacts/hooks/contact.tsx";
+import { useContext, useEffect, useState } from "react";
 import { IContact } from "../../contacts/types.ts";
 
 interface MessageItemProps {
@@ -9,7 +9,7 @@ interface MessageItemProps {
 }
 
 export const MessageItem = ({ message }: MessageItemProps) => {
-  const { getContact } = useGetContacts();
+  const { getContact } = useContext(ContactContext);
 
   const [contact, setContact] = useState<IContact | undefined>(undefined);
 
