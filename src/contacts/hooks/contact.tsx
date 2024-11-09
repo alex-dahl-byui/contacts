@@ -9,6 +9,7 @@ interface ContactContextType {
   deleteContact: (contact?: IContact) => void;
   addContact: (newContact: IContact) => void;
   updateContact: (originalContact: IContact, newContact: IContact) => void;
+  removeGroupMember: (contactId: string, memberId: string) => void;
 }
 
 export const ContactContext = React.createContext<ContactContextType>({
@@ -17,11 +18,13 @@ export const ContactContext = React.createContext<ContactContextType>({
   deleteContact: () => null,
   addContact: () => null,
   updateContact: () => null,
+  removeGroupMember: () => null,
 });
 
 interface ContactContextProviderProps {
   children: React.ReactNode;
 }
+
 export const ContactContextProvider = ({
   children,
 }: ContactContextProviderProps) => {
@@ -72,9 +75,33 @@ export const ContactContextProvider = ({
     [],
   );
 
+  const removeGroupMember = useCallback(
+    (contactId: string, memberId: string) => {
+      setContacts((prevState) => {
+        return prevState.map((contact) => {
+          if (contact.id === contactId && contact.group) {
+            return {
+              ...contact,
+              group: contact.group.filter((member) => member.id !== memberId),
+            };
+          }
+          return contact;
+        });
+      });
+    },
+    [],
+  );
+
   return (
     <ContactContext.Provider
-      value={{ contacts, getContact, deleteContact, addContact, updateContact }}
+      value={{
+        contacts,
+        getContact,
+        deleteContact,
+        addContact,
+        updateContact,
+        removeGroupMember,
+      }}
     >
       {children}
     </ContactContext.Provider>

@@ -8,6 +8,7 @@ import { useContext } from "react";
 
 export const DocumentList = () => {
   const { documents } = useContext(DocumentsContext);
+
   return (
     <Card className="panel panel-default">
       <Card.Header className="panel-heading">

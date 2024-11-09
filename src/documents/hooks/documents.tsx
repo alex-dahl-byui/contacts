@@ -59,13 +59,15 @@ export const DocumentContextProvider = ({
       newDocument.id = originalDocument.id;
 
       setDocuments((prevState) => {
-        const pos = prevState.indexOf(originalDocument);
+        const pos = prevState.findIndex(
+          (doc) => doc.id === originalDocument.id,
+        );
         if (pos < 0) {
           return prevState;
         }
 
-        const newState = [...prevState];
-        newState[pos] = newDocument;
+        const newState = structuredClone(prevState);
+        newState.splice(pos, 1, newDocument);
         return newState;
       });
     },
