@@ -9,6 +9,7 @@ import { DocumentEdit } from "./documents/document-edit/DocumentEdit.tsx";
 import { DocumentDetail } from "./documents/document-detail/DocumentDetail.tsx";
 import { ContactDetail } from "./contacts/contact-detail/ContactDetail.tsx";
 import { ContactEdit } from "./contacts/contact-edit/ContactEdit.tsx";
+import { initializeApp } from "firebase/app";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,17 @@ const router = createBrowserRouter([
   },
   { path: "/messages", element: <MessageList /> },
 ]);
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA2EZemEbGPJf3F-Dn2xNRxps1N68S6qmA",
+  authDomain: "byui-contacts.firebaseapp.com",
+  databaseURL: "https://byui-contacts-default-rtdb.firebaseio.com",
+  projectId: "byui-contacts",
+  storageBucket: "byui-contacts.firebasestorage.app",
+  messagingSenderId: "117196816481",
+  appId: "1:117196816481:web:7feb191c8a6453f80f2a20",
+};
+initializeApp(firebaseConfig);
 
 function App() {
   return (

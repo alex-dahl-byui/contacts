@@ -27,14 +27,16 @@ export const ContactEdit = () => {
     useContext(ContactContext);
   const editMode = useMemo(() => !!id, [id]);
 
-  const [contact, setContact] = useState<IContact>(
-    editMode && id
-      ? structuredClone(getContact(id) ?? emptyContact)
-      : emptyContact,
-  );
+  const [contact, setContact] = useState<IContact>(emptyContact);
   const [originalContact, setOriginalContact] = useState<IContact | undefined>(
     undefined,
   );
+
+  useEffect(() => {
+    if (id) {
+      setContact(getContact(id) ?? emptyContact);
+    }
+  }, [getContact, id]);
 
   useEffect(() => {
     if (editMode) {

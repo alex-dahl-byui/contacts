@@ -33,6 +33,12 @@ export const DocumentEdit = () => {
   >(undefined);
 
   useEffect(() => {
+    if (id) {
+      setDocument(getDocument(id) ?? emptyDocument);
+    }
+  }, [getDocument, id]);
+
+  useEffect(() => {
     if (editMode) {
       setOriginalDocument(structuredClone(getDocument(id ?? "0")));
     }

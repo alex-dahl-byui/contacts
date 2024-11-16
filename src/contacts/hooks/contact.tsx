@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import { IContact } from "../types.ts";
 import { useCallback, useState } from "react";
-import { MOCKCONTACTS } from "./MOCKCONTACTS.ts";
+
+import { getDatabase, ref, child, get, set } from "firebase/database";
 
 interface ContactContextType {
   contacts: IContact[];
@@ -28,30 +29,62 @@ interface ContactContextProviderProps {
 export const ContactContextProvider = ({
   children,
 }: ContactContextProviderProps) => {
-  const [contacts, setContacts] = useState<IContact[]>(MOCKCONTACTS);
+  const dbRef = useMemo(() => ref(getDatabase()), []);
+  const db = useMemo(() => getDatabase(), []);
+
+  const [contacts, setContacts] = useState<IContact[]>([]);
+
+  const getContacts = useCallback(() => {
+    get(child(dbRef, "contacts/"))
+      .then((snapShot) => {
+        if (snapShot.exists()) {
+          setContacts(snapShot.val());
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, [dbRef]);
+
+  const setNewContacts = useCallback(
+    (newContacts: IContact[]) => {
+      set(ref(db, "/contacts"), newContacts).then(() => getContacts());
+    },
+    [db, getContacts],
+  );
+
+  useEffect(() => {
+    getContacts();
+  }, [getContacts]);
 
   const getContact = useCallback(
     (id: string) => contacts.find((contact) => contact.id === id),
     [contacts],
   );
 
-  const deleteContact = useCallback((contact?: IContact) => {
-    if (!contact) {
-      return;
-    }
-    setContacts((prevState) =>
-      prevState.filter((con) => con.id !== contact.id),
-    );
-  }, []);
+  const deleteContact = useCallback(
+    (contact?: IContact) => {
+      if (!contact) {
+        return;
+      }
+      setNewContacts(contacts.filter((con) => con.id !== contact.id));
+    },
+    [contacts, setNewContacts],
+  );
 
-  const addContact = useCallback((newContact: IContact) => {
-    if (!newContact) {
-      return;
-    }
-    const newContactCopy = structuredClone(newContact);
-    newContactCopy.id = crypto.randomUUID();
-    setContacts((prevState) => [...prevState, newContactCopy]);
-  }, []);
+  const addContact = useCallback(
+    (newContact: IContact) => {
+      if (!newContact) {
+        return;
+      }
+      const newContactCopy = structuredClone(newContact);
+      newContactCopy.id = crypto.randomUUID();
+      setNewContacts([...contacts, newContactCopy]);
+    },
+    [contacts, setNewContacts],
+  );
 
   const updateContact = useCallback(
     (originalContact: IContact, newContact: IContact) => {
@@ -61,18 +94,16 @@ export const ContactContextProvider = ({
 
       newContact.id = originalContact.id;
 
-      setContacts((prevState) => {
-        const pos = prevState.indexOf(originalContact);
-        if (pos < 0) {
-          return prevState;
-        }
-
-        const newState = [...prevState];
+      const pos = contacts.findIndex(
+        (contact) => contact.id === originalContact.id,
+      );
+      if (pos >= 0) {
+        const newState = [...contacts];
         newState[pos] = newContact;
-        return newState;
-      });
+        setNewContacts(newState);
+      }
     },
-    [],
+    [contacts, setNewContacts],
   );
 
   const removeGroupMember = useCallback(

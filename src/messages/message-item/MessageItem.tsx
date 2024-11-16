@@ -13,9 +13,11 @@ export const MessageItem = ({ message }: MessageItemProps) => {
 
   const [contact, setContact] = useState<IContact | undefined>(undefined);
 
+  console.log(contact);
+
   useEffect(() => {
-    setContact(getContact(message.id));
-  }, [getContact, message.id]);
+    setContact(getContact(message.sender));
+  }, [getContact, message.sender]);
 
   return (
     <a className="list-group-item clearfix">

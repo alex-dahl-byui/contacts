@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import { Document } from "../types.ts";
 import { useCallback, useState } from "react";
-import { MOCKDOCUMENTS } from "./MOCKDOCUMENTS.ts";
+import { child, get, getDatabase, ref, set } from "firebase/database";
 
 interface DocumentsContextType {
   documents: Document[];
@@ -25,30 +25,61 @@ interface DocumentContextProviderProps {
 export const DocumentContextProvider = ({
   children,
 }: DocumentContextProviderProps) => {
-  const [documents, setDocuments] = useState<Document[]>(MOCKDOCUMENTS);
+  const dbRef = useMemo(() => ref(getDatabase()), []);
+  const db = useMemo(() => getDatabase(), []);
+  const [documents, setDocuments] = useState<Document[]>([]);
+
+  const getDocuments = useCallback(() => {
+    get(child(dbRef, "documents/"))
+      .then((snapShot) => {
+        if (snapShot.exists()) {
+          setDocuments(snapShot.val());
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, [dbRef]);
+
+  const setNewDocuments = useCallback(
+    (newDocuments: Document[]) => {
+      set(ref(db, "/documents"), newDocuments).then(() => getDocuments());
+    },
+    [db, getDocuments],
+  );
+
+  useEffect(() => {
+    getDocuments();
+  }, [getDocuments]);
 
   const getDocument = useCallback(
     (id: string) => documents.find((doc) => doc.id === id),
     [documents],
   );
 
-  const deleteDocument = useCallback((document?: Document) => {
-    if (!document) {
-      return;
-    }
-    setDocuments((prevState) =>
-      prevState.filter((doc) => doc.id !== document.id),
-    );
-  }, []);
+  const deleteDocument = useCallback(
+    (document?: Document) => {
+      if (!document) {
+        return;
+      }
+      setNewDocuments(documents.filter((doc) => doc.id !== document.id));
+    },
+    [documents, setNewDocuments],
+  );
 
-  const addDocument = useCallback((newDocument: Document) => {
-    if (!newDocument) {
-      return;
-    }
-    const newDocumentCopy = structuredClone(newDocument);
-    newDocumentCopy.id = crypto.randomUUID();
-    setDocuments((prevState) => [...prevState, newDocumentCopy]);
-  }, []);
+  const addDocument = useCallback(
+    (newDocument: Document) => {
+      if (!newDocument) {
+        return;
+      }
+      const newDocumentCopy = structuredClone(newDocument);
+      newDocumentCopy.id = crypto.randomUUID();
+      setNewDocuments([...documents, newDocumentCopy]);
+    },
+    [documents, setNewDocuments],
+  );
 
   const updateDocument = useCallback(
     (originalDocument: Document, newDocument: Document) => {
@@ -58,20 +89,16 @@ export const DocumentContextProvider = ({
 
       newDocument.id = originalDocument.id;
 
-      setDocuments((prevState) => {
-        const pos = prevState.findIndex(
-          (doc) => doc.id === originalDocument.id,
-        );
-        if (pos < 0) {
-          return prevState;
-        }
+      const pos = documents.findIndex((doc) => doc.id === originalDocument.id);
+      if (pos < 0) {
+        return;
+      }
 
-        const newState = structuredClone(prevState);
-        newState.splice(pos, 1, newDocument);
-        return newState;
-      });
+      const newState = structuredClone(documents);
+      newState.splice(pos, 1, newDocument);
+      setNewDocuments(newState);
     },
-    [],
+    [documents, setNewDocuments],
   );
 
   return (
