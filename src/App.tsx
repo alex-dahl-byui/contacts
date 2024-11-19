@@ -13,6 +13,10 @@ import { initializeApp } from "firebase/app";
 
 const router = createBrowserRouter([
   {
+    path: "/",
+    element: <Contact />,
+  },
+  {
     path: "/contacts",
     element: <Contact />,
     children: [
