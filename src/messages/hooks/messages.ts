@@ -1,33 +1,32 @@
 import { Message } from "../types.ts";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { child, get, getDatabase, ref, set } from "firebase/database";
-import { Document } from "../../documents/types.ts";
+import { useCallback, useEffect, useState } from "react";
 
 export const useGetMessages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const dbRef = useMemo(() => ref(getDatabase()), []);
-  const db = useMemo(() => getDatabase(), []);
 
-  const fetchMessages = useCallback(() => {
-    get(child(dbRef, "messages/"))
-      .then((snapShot) => {
-        if (snapShot.exists()) {
-          setMessages(snapShot.val());
-        } else {
-          console.log("No data available");
-        }
-      })
-      .catch((error) => {
-        console.error(error);
+  const fetchMessages = useCallback(async () => {
+    try {
+      const mesRes = await fetch("http://localhost:3000/message");
+      const mes = await mesRes.json();
+      setMessages(mes);
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const addMessage = useCallback(async (newMessages: Message) => {
+    try {
+      await fetch("http://localhost:3000/message", {
+        method: "POST",
+        body: JSON.stringify(newMessages),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
-  }, [dbRef]);
-
-  const setNewMessages = useCallback(
-    (newMessages: Document[]) => {
-      set(ref(db, "/messages"), newMessages).then(() => fetchMessages());
-    },
-    [db, fetchMessages],
-  );
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   useEffect(() => {
     fetchMessages();
@@ -37,10 +36,6 @@ export const useGetMessages = () => {
 
   const getMessage = (id: string) =>
     messages.find((message) => message.id === id);
-
-  const addMessage = (message: Message) => {
-    setNewMessages([...getMessages(), message]);
-  };
 
   return { getMessages, getMessage, addMessage };
 };

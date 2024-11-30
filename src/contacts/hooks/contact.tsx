@@ -1,8 +1,6 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import { IContact } from "../types.ts";
 import { useCallback, useState } from "react";
-
-import { getDatabase, ref, child, get, set } from "firebase/database";
 
 interface ContactContextType {
   contacts: IContact[];
@@ -29,31 +27,17 @@ interface ContactContextProviderProps {
 export const ContactContextProvider = ({
   children,
 }: ContactContextProviderProps) => {
-  const dbRef = useMemo(() => ref(getDatabase()), []);
-  const db = useMemo(() => getDatabase(), []);
-
   const [contacts, setContacts] = useState<IContact[]>([]);
 
-  const getContacts = useCallback(() => {
-    get(child(dbRef, "contacts/"))
-      .then((snapShot) => {
-        if (snapShot.exists()) {
-          setContacts(snapShot.val());
-        } else {
-          console.log("No data available");
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, [dbRef]);
-
-  const setNewContacts = useCallback(
-    (newContacts: IContact[]) => {
-      set(ref(db, "/contacts"), newContacts).then(() => getContacts());
-    },
-    [db, getContacts],
-  );
+  const getContacts = useCallback(async () => {
+    try {
+      const conRes = await fetch("http://localhost:3000/contact");
+      const con = await conRes.json();
+      setContacts(con);
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   useEffect(() => {
     getContacts();
@@ -65,47 +49,61 @@ export const ContactContextProvider = ({
   );
 
   const deleteContact = useCallback(
-    (contact?: IContact) => {
+    async (contact?: IContact) => {
       if (!contact) {
         return;
       }
-      setNewContacts(contacts.filter((con) => con.id !== contact.id));
+      try {
+        await fetch(`http://localhost:3000/contact/${contact.id}`, {
+          method: "DELETE",
+        });
+
+        getContacts();
+      } catch (e) {
+        console.error(e);
+      }
     },
-    [contacts, setNewContacts],
+    [getContacts],
   );
 
-  const addContact = useCallback(
-    (newContact: IContact) => {
-      if (!newContact) {
-        return;
-      }
-      const newContactCopy = structuredClone(newContact);
-      newContactCopy.id = crypto.randomUUID();
-      setNewContacts([...contacts, newContactCopy]);
-    },
-    [contacts, setNewContacts],
-  );
+  const addContact = useCallback(async (newContact: IContact) => {
+    try {
+      await fetch("http://localhost:3000/contact", {
+        method: "POST",
+        body: JSON.stringify(newContact),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   const updateContact = useCallback(
-    (originalContact: IContact, newContact: IContact) => {
+    async (originalContact: IContact, newContact: IContact) => {
       if (!originalContact || !newContact) {
         return;
       }
 
       newContact.id = originalContact.id;
 
-      const pos = contacts.findIndex(
-        (contact) => contact.id === originalContact.id,
-      );
-      if (pos >= 0) {
-        const newState = [...contacts];
-        newState[pos] = newContact;
-        setNewContacts(newState);
+      try {
+        await fetch(`http://localhost:3000/contact/${originalContact.id}`, {
+          method: "PUT",
+          body: JSON.stringify(newContact),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        getContacts();
+      } catch (e) {
+        console.error(e);
       }
     },
-    [contacts, setNewContacts],
+    [getContacts],
   );
-
   const removeGroupMember = useCallback(
     (contactId: string, memberId: string) => {
       setContacts((prevState) => {

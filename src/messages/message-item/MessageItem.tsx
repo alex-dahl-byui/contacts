@@ -13,8 +13,6 @@ export const MessageItem = ({ message }: MessageItemProps) => {
 
   const [contact, setContact] = useState<IContact | undefined>(undefined);
 
-  console.log(contact);
-
   useEffect(() => {
     setContact(getContact(message.sender));
   }, [getContact, message.sender]);
